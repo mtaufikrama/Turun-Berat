@@ -26,9 +26,9 @@ class Storages {
 
 class TeleBot {
   TeleDart? teledart;
-  static const String botToken =
+  static const botToken =
       '6084131281:AAEzAoy7YtPuCYrQvb8fEm0TaLvQMLTiW2c';
-  static const List<int> listUserId = [
+  static const listUserId = [
     1304468509,
     1248566730,
   ];
