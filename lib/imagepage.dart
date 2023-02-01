@@ -10,7 +10,6 @@ class ImagePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print('object');
     return DismissiblePage(
       onDismissed: () => Navigator.of(context).pop(),
       startingOpacity: 0.7,
@@ -35,9 +34,7 @@ class ImagePage extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () async {
-                    print('object');
                     Navigator.of(context).pop();
-                    // await downloadImage(imagePath);
                   },
                   icon: const Icon(
                     Icons.cancel_outlined,

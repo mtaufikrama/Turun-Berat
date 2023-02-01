@@ -8,8 +8,6 @@ Future<void> main() async {
   await Hive.initFlutter();
   await Hive.openBox('2023sehat');
   await Hive.openBox('profile');
-  // await Storages().box.clear();
-  print(Storages().getBox);
   TeleBot().start();
   runApp(const MyApp());
 }

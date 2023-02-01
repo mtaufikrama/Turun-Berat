@@ -3,9 +3,9 @@ import 'dart:math';
 
 import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:sehat/imagepage.dart';
 import 'package:sehat/services.dart';
+import 'package:sehat/showdialog.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
@@ -16,204 +16,246 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final Map<dynamic, dynamic> getBox = Storages().getBox;
+  final String nama = Storages().getProfile['nama'] ?? '';
+  late double selisih;
+  late double pertama;
+  late double terakhir;
+  @override
+  void initState() {
+    if (getBox.isNotEmpty) {
+      pertama = getBox.values.first.values.first.first['berat'];
+      terakhir = getBox.values.last.values.last.last['berat'];
+    } else {
+      pertama = 0.0;
+      terakhir = 0.0;
+    }
+    selisih = terakhir - pertama;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    Map<dynamic, dynamic> getBox = Storages().getBox;
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.black,
+        elevation: 0,
+        automaticallyImplyLeading: false,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () => showDialog(
+              context: context,
+              builder: (context) => const ShowDialog(profile: true),
+            ),
+            icon: const Icon(
+              Icons.person,
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: getBox.keys
-              .map(
-                (e) => Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(
-                      color: Colors.amber,
-                      child: Text(
-                        e.toString(),
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w500,
+          children: [
+            nama.isNotEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: ListTile(
+                      title: Text(
+                        'Hi, $nama',
+                      ),
+                      subtitle: Text(
+                          'First Weight : ${pertama.toStringAsFixed(2)}kg\nLast Weight : ${terakhir.toStringAsFixed(2)}kg'),
+                      leading: Storages().getProfile['image'] != null
+                          ? GestureDetector(
+                              onTap: () => context.pushTransparentRoute(
+                                ImagePage(
+                                  imagePath: Storages().getProfile['image'],
+                                  tag: Storages().getProfile['image'],
+                                ),
+                                transitionDuration:
+                                    const Duration(milliseconds: 500),
+                                reverseTransitionDuration:
+                                    const Duration(milliseconds: 500),
+                              ),
+                              child: Hero(
+                                tag: Storages().getProfile['image'],
+                                child: CircleAvatar(
+                                  backgroundImage: FileImage(
+                                    File(
+                                      Storages().getProfile['image'],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : null,
+                      trailing: Text(
+                        '${selisih.abs().toStringAsFixed(2)}kg ${selisih > 0 ? '⬆' : selisih == 0 ? '' : '⬇'}',
+                        style: TextStyle(
+                          color: selisih < 0
+                              ? Colors.green
+                              : selisih == 0
+                                  ? Colors.grey
+                                  : Colors.red,
                         ),
                       ),
                     ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: getBox[e].length,
-                      itemBuilder: (context, index) {
-                        var data = getBox[e][index];
-                        String random = Random().nextInt(2846).toString();
-                        return ListTile(
-                          leading: GestureDetector(
-                            onTap: () => context.pushTransparentRoute(
-                              ImagePage(
-                                  imagePath: data['image'],
-                                  tag: data['image'] + random),
-                              transitionDuration:
-                                  const Duration(milliseconds: 500),
-                              reverseTransitionDuration:
-                                  const Duration(milliseconds: 500),
-                            ),
-                            child: AspectRatio(
-                              aspectRatio: 1,
-                              child: Hero(
-                                tag: data['image'] + random,
-                                child: Image.file(
-                                  File(data['image']),
-                                  fit: BoxFit.contain,
+                  )
+                : Container(),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: getBox.keys.map((e) {
+                Map valueMonth = getBox[e];
+                int r = Random().nextInt(255);
+                int g = Random().nextInt(255);
+                int b = Random().nextInt(255);
+                return Container(
+                  padding: const EdgeInsets.all(15),
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: Color.fromARGB(255, r, g, b),
+                      boxShadow: const [
+                        BoxShadow(
+                            blurRadius: 2,
+                            offset: Offset(4, 4),
+                            color: Colors.black38)
+                      ]),
+                  child: Column(
+                    children: [
+                      Text(
+                        e,
+                        style: const TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Column(
+                        children: valueMonth.keys.map((e) {
+                          double selisihPerBulan =
+                              valueMonth[e].last['berat'] -
+                                  valueMonth[e].first['berat'];
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 10),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 2),
+                                decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: Color.fromARGB(255, b, r, g),
+                                    boxShadow: const [
+                                      BoxShadow(
+                                          blurRadius: 2,
+                                          offset: Offset(2, 2),
+                                          color: Colors.black26)
+                                    ]),
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        e,
+                                        textAlign: TextAlign.start,
+                                        style: const TextStyle(
+                                          fontSize: 17,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        '${selisihPerBulan.toStringAsFixed(2)}kg',
+                                        textAlign: TextAlign.end,
+                                        style: const TextStyle(
+                                            fontWeight: FontWeight.w500),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          ),
-                          title: Text(data['jam']),
-                          trailing: Text(data['berat']),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              )
-              .toList(),
+                              getBox.isNotEmpty
+                                  ? ListView.builder(
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      itemCount: valueMonth[e].length,
+                                      itemBuilder: (context, index) {
+                                        var data = valueMonth[e][index];
+                                        String random =
+                                            Random().nextInt(2846).toString();
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 1,
+                                          ),
+                                          child: ListTile(
+                                            leading: GestureDetector(
+                                              onTap: () =>
+                                                  context.pushTransparentRoute(
+                                                ImagePage(
+                                                    imagePath: data['image'],
+                                                    tag:
+                                                        data['image'] + random),
+                                                transitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 500),
+                                                reverseTransitionDuration:
+                                                    const Duration(
+                                                        milliseconds: 500),
+                                              ),
+                                              child: AspectRatio(
+                                                aspectRatio: 1,
+                                                child: Hero(
+                                                  tag: data['image'] + random,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10),
+                                                    child: Image.file(
+                                                      File(data['image']),
+                                                      fit: BoxFit.cover,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            title: Text(data['jam']),
+                                            trailing: Text(
+                                              '${data['berat'].toStringAsFixed(2)}kg',
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w500),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : Container(),
+                            ],
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.black87,
         onPressed: () {
           showDialog(
             context: context,
-            builder: (context) => const ShowDialog(),
+            builder: (context) => const ShowDialog(profile: false),
           );
         },
         child: const Icon(Icons.add),
       ),
-    );
-  }
-}
-
-class ShowDialog extends StatefulWidget {
-  const ShowDialog({super.key});
-
-  @override
-  State<ShowDialog> createState() => _ShowDialogState();
-}
-
-class _ShowDialogState extends State<ShowDialog> {
-  TextEditingController beratController = TextEditingController();
-  String? file;
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      scrollable: true,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      title: const Text(
-        'INPUT DATA',
-        textAlign: TextAlign.center,
-      ),
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  keyboardType: TextInputType.number,
-                  controller: beratController,
-                  decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Input Berat Badan',
-                      hintText: ''),
-                ),
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              const Text('Kg'),
-            ],
-          ),
-          const SizedBox(
-            height: 15,
-          ),
-          file != null
-              ? SizedBox(
-                  width: MediaQuery.of(context).size.width / 3,
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: Image.file(
-                        File(file!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                )
-              : Container(),
-          IconButton(
-            onPressed: () async {
-              XFile? image =
-                  await ImagePicker().pickImage(source: ImageSource.camera);
-              if (image != null) {
-                file = image.path;
-                print(file);
-              }
-              setState(() {});
-            },
-            icon: const Icon(Icons.camera_alt_outlined),
-          )
-        ],
-      ),
-      actions: [
-        IconButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          icon: const Icon(Icons.cancel_rounded),
-        ),
-        IconButton(
-          onPressed: () async {
-            dynamic getData = Storages().getBox[day] ?? {};
-            if (file != null && beratController.text.isNotEmpty) {
-              List<dynamic> listdata = [];
-              print('getData : $getData');
-              if (getData.isNotEmpty) {
-                listdata.addAll(getData);
-              }
-              print(listdata);
-              listdata.add(
-                listData(
-                  file!,
-                  '${beratController.text}kg',
-                ),
-              );
-              print(listdata);
-              await Storages().putBox(listdata);
-              print('storage get box : ${Storages().getBox}');
-              // ignore: use_build_context_synchronously
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const MyHomePage(title: '2023 Sehat'),
-                ),
-              );
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Foto Timbangan dan Input Berat Badan',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              );
-            }
-          },
-          icon: const Icon(Icons.done_outline_rounded),
-        ),
-      ],
     );
   }
 }
