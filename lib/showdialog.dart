@@ -218,7 +218,10 @@ class _ShowDialogState extends State<ShowDialog> {
           onPressed: () {
             Navigator.pop(context);
           },
-          icon: const Icon(Icons.cancel_rounded, color: Colors.red,),
+          icon: const Icon(
+            Icons.cancel_rounded,
+            color: Colors.red,
+          ),
         ),
         IconButton(
           onPressed: () async {
@@ -228,16 +231,28 @@ class _ShowDialogState extends State<ShowDialog> {
                 print(getBox);
                 getBox.update(month, (valueMonth) {
                   final Map valueM = valueMonth;
-                  valueM.update(day, (valueDay) {
-                    final List valueD = valueDay;
-                    valueD.add(
-                      listData(
-                        file!,
-                        double.parse(beratController.text),
-                      ),
-                    );
-                    return valueD;
-                  });
+                  valueM.update(
+                    day,
+                    (valueDay) {
+                      final List valueD = valueDay;
+                      valueD.add(
+                        listData(
+                          file!,
+                          double.parse(beratController.text),
+                        ),
+                      );
+                      return valueD;
+                    },
+                    ifAbsent: () {
+                      List valueDay = [
+                        listData(
+                          file!,
+                          double.parse(beratController.text),
+                        ),
+                      ];
+                      return valueDay;
+                    },
+                  );
                   return valueM;
                 }, ifAbsent: () {
                   Map valueMonth = {
@@ -303,7 +318,10 @@ class _ShowDialogState extends State<ShowDialog> {
               }
             }
           },
-          icon: const Icon(Icons.done_outline_rounded, color: Colors.green,),
+          icon: const Icon(
+            Icons.done_outline_rounded,
+            color: Colors.green,
+          ),
         ),
       ],
     );

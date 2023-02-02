@@ -17,11 +17,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const String title = '2023 Sehat';
+    const String title = "Gezunt'23";
     return MaterialApp(
       title: title,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
       ),
       debugShowCheckedModeBanner: false,
       home: const MyHomePage(title: title),

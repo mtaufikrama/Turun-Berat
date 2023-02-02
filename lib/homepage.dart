@@ -108,6 +108,8 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: getBox.keys.map((e) {
                 Map valueMonth = getBox[e];
+                double selisihPerBulan = valueMonth.values.last.last['berat'] -
+                    valueMonth.values.first.first['berat'];
                 int r = Random().nextInt(255);
                 int g = Random().nextInt(255);
                 int b = Random().nextInt(255);
@@ -126,117 +128,123 @@ class _MyHomePageState extends State<MyHomePage> {
                       ]),
                   child: Column(
                     children: [
-                      Text(
-                        e,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            e,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            '${selisihPerBulan.abs().toStringAsFixed(2)}kg ${selisihPerBulan > 0 ? '⬆' : selisihPerBulan == 0 ? '' : '⬇'}',
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.end,
+                          ),
+                        ],
                       ),
                       Column(
-                        children: valueMonth.keys.map((e) {
-                          double selisihPerBulan =
-                              valueMonth[e].last['berat'] -
-                                  valueMonth[e].first['berat'];
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Container(
-                                margin:
-                                    const EdgeInsets.symmetric(vertical: 10),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 2),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(20),
-                                    color: Color.fromARGB(255, b, r, g),
-                                    boxShadow: const [
-                                      BoxShadow(
-                                          blurRadius: 2,
-                                          offset: Offset(2, 2),
-                                          color: Colors.black26)
-                                    ]),
-                                child: Row(
+                        children: valueMonth.keys
+                            .map((e) => Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
-                                    Expanded(
+                                    Container(
+                                      margin: const EdgeInsets.symmetric(
+                                          vertical: 10),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 20, vertical: 2),
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          color: Color.fromARGB(255, b, r, g),
+                                          boxShadow: const [
+                                            BoxShadow(
+                                                blurRadius: 2,
+                                                offset: Offset(2, 2),
+                                                color: Colors.black26)
+                                          ]),
                                       child: Text(
                                         e,
-                                        textAlign: TextAlign.start,
+                                        textAlign: TextAlign.center,
                                         style: const TextStyle(
                                           fontSize: 17,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Text(
-                                        '${selisihPerBulan.toStringAsFixed(2)}kg',
-                                        textAlign: TextAlign.end,
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.w500),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              getBox.isNotEmpty
-                                  ? ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: valueMonth[e].length,
-                                      itemBuilder: (context, index) {
-                                        var data = valueMonth[e][index];
-                                        String random =
-                                            Random().nextInt(2846).toString();
-                                        return Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 1,
-                                          ),
-                                          child: ListTile(
-                                            leading: GestureDetector(
-                                              onTap: () =>
-                                                  context.pushTransparentRoute(
-                                                ImagePage(
-                                                    imagePath: data['image'],
-                                                    tag:
-                                                        data['image'] + random),
-                                                transitionDuration:
-                                                    const Duration(
-                                                        milliseconds: 500),
-                                                reverseTransitionDuration:
-                                                    const Duration(
-                                                        milliseconds: 500),
-                                              ),
-                                              child: AspectRatio(
-                                                aspectRatio: 1,
-                                                child: Hero(
-                                                  tag: data['image'] + random,
-                                                  child: ClipRRect(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    child: Image.file(
-                                                      File(data['image']),
-                                                      fit: BoxFit.cover,
+                                    getBox.isNotEmpty
+                                        ? ListView.builder(
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: valueMonth[e].length,
+                                            itemBuilder: (context, index) {
+                                              var data = valueMonth[e][index];
+                                              String random = Random()
+                                                  .nextInt(2846)
+                                                  .toString();
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                  vertical: 1,
+                                                ),
+                                                child: ListTile(
+                                                  leading: GestureDetector(
+                                                    onTap: () => context
+                                                        .pushTransparentRoute(
+                                                      ImagePage(
+                                                          imagePath:
+                                                              data['image'],
+                                                          tag: data['image'] +
+                                                              random),
+                                                      transitionDuration:
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  500),
+                                                      reverseTransitionDuration:
+                                                          const Duration(
+                                                              milliseconds:
+                                                                  500),
+                                                    ),
+                                                    child: AspectRatio(
+                                                      aspectRatio: 1,
+                                                      child: Hero(
+                                                        tag: data['image'] +
+                                                            random,
+                                                        child: ClipRRect(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          child: Image.file(
+                                                            File(data['image']),
+                                                            fit: BoxFit.cover,
+                                                          ),
+                                                        ),
+                                                      ),
                                                     ),
                                                   ),
+                                                  title: Text(data['jam']),
+                                                  trailing: Text(
+                                                    '${data['berat'].toStringAsFixed(2)}kg',
+                                                    style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.w500),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                            title: Text(data['jam']),
-                                            trailing: Text(
-                                              '${data['berat'].toStringAsFixed(2)}kg',
-                                              style: const TextStyle(
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    )
-                                  : Container(),
-                            ],
-                          );
-                        }).toList(),
+                                              );
+                                            },
+                                          )
+                                        : Container(),
+                                  ],
+                                ))
+                            .toList(),
                       ),
                     ],
                   ),

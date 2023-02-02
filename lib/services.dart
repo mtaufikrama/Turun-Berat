@@ -26,8 +26,7 @@ class Storages {
 
 class TeleBot {
   TeleDart? teledart;
-  static const botToken =
-      '6084131281:AAEzAoy7YtPuCYrQvb8fEm0TaLvQMLTiW2c';
+  static const botToken = '6084131281:AAEzAoy7YtPuCYrQvb8fEm0TaLvQMLTiW2c';
   static const listUserId = [
     1304468509,
     1248566730,
@@ -52,14 +51,21 @@ class TeleBot {
       teledart = TeleDart(botToken, Event(username!));
     }
     teledart!.start();
-    int userId = Storages().getProfile['userId'] ?? 1000000;
+    int userId = Storages().getProfile['userId'] ?? 0;
     if (listUserId.contains(userId)) {
       listUserId
           .map((e) async =>
               e != userId ? await teledart!.sendMessage(e, text) : null)
           .toList();
     } else {
-      await teledart!.sendMessage(listUserId[1], text);
+      listUserId
+          .map((e) async => await teledart!.sendMessage(e, text))
+          .toList();
+      try {
+        await teledart!.sendMessage(userId, text);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 
@@ -72,12 +78,21 @@ class TeleBot {
     int userId = Storages().getProfile['userId'] ?? listUserId[1];
     if (listUserId.contains(userId)) {
       listUserId
-          .map((e) async => e != userId
-              ? await teledart!.sendPhoto(e, file, caption: text)
-              : null)
+          .map(
+            (e) async => e != userId
+                ? await teledart!.sendPhoto(e, file, caption: text)
+                : null,
+          )
           .toList();
     } else {
-      await teledart!.sendPhoto(userId, file, caption: text);
+      listUserId
+          .map((e) async => await teledart!.sendPhoto(e, file, caption: text))
+          .toList();
+      try {
+        await teledart!.sendPhoto(userId, file, caption: text);
+      } catch (e) {
+        print(e);
+      }
     }
   }
 }
