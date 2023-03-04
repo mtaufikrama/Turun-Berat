@@ -18,12 +18,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const String title = "Gezunt'23";
-    return MaterialApp(
+    return const MaterialApp(
       title: title,
-      theme: ThemeData(
-      ),
       debugShowCheckedModeBanner: false,
-      home: const MyHomePage(title: title),
+      home: MyHomePage(title: title),
     );
   }
 }

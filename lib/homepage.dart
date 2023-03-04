@@ -189,8 +189,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 const NeverScrollableScrollPhysics(),
                                             itemCount: valueMonth[e].length,
                                             itemBuilder: (context, index) {
-                                              Map<String, String> data =
-                                                  valueMonth[e][index];
+                                              Map data = valueMonth[e][index];
                                               String random = Random()
                                                   .nextInt(2846)
                                                   .toString();
