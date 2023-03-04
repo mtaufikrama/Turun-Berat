@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/material.dart';
 import 'package:sehat/imagepage.dart';
+import 'package:sehat/imagevideo.dart';
 import 'package:sehat/services.dart';
 import 'package:sehat/showdialog.dart';
 
@@ -18,14 +19,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   final Map<dynamic, dynamic> getBox = Storages().getBox;
   final String nama = Storages().getProfile['nama'] ?? '';
-  late double selisih;
-  late double pertama;
-  late double terakhir;
+  double selisih = 0;
+  double pertama = 0;
+  double terakhir = 0;
   @override
   void initState() {
     if (getBox.isNotEmpty) {
-      pertama = getBox.values.first.values.first.first['berat'];
-      terakhir = getBox.values.last.values.last.last['berat'];
+      pertama = getBox.values.first.values.first.first['berat'] as double;
+      terakhir = getBox.values.last.values.last.last['berat'] as double;
     } else {
       pertama = 0.0;
       terakhir = 0.0;
@@ -71,8 +72,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           ? GestureDetector(
                               onTap: () => context.pushTransparentRoute(
                                 ImagePage(
-                                  imagePath: Storages().getProfile['image'],
-                                  tag: Storages().getProfile['image'],
+                                  imagePath:
+                                      Storages().getProfile['image'] as String,
+                                  tag: Storages().getProfile['image'] as String,
                                 ),
                                 transitionDuration:
                                     const Duration(milliseconds: 500),
@@ -80,11 +82,11 @@ class _MyHomePageState extends State<MyHomePage> {
                                     const Duration(milliseconds: 500),
                               ),
                               child: Hero(
-                                tag: Storages().getProfile['image'],
+                                tag: Storages().getProfile['image'] as String,
                                 child: CircleAvatar(
                                   backgroundImage: FileImage(
                                     File(
-                                      Storages().getProfile['image'],
+                                      Storages().getProfile['image'] as String,
                                     ),
                                   ),
                                 ),
@@ -108,8 +110,9 @@ class _MyHomePageState extends State<MyHomePage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: getBox.keys.map((e) {
                 Map valueMonth = getBox[e];
-                double selisihPerBulan = valueMonth.values.last.last['berat'] -
-                    valueMonth.values.first.first['berat'];
+                double selisihPerBulan =
+                    (valueMonth.values.last.last['berat'] as double) -
+                        (valueMonth.values.first.first['berat'] as double);
                 int r = Random().nextInt(255);
                 int g = Random().nextInt(255);
                 int b = Random().nextInt(255);
@@ -186,7 +189,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 const NeverScrollableScrollPhysics(),
                                             itemCount: valueMonth[e].length,
                                             itemBuilder: (context, index) {
-                                              var data = valueMonth[e][index];
+                                              Map<String, String> data =
+                                                  valueMonth[e][index];
                                               String random = Random()
                                                   .nextInt(2846)
                                                   .toString();
@@ -197,12 +201,14 @@ class _MyHomePageState extends State<MyHomePage> {
                                                 ),
                                                 child: ListTile(
                                                   leading: GestureDetector(
-                                                    onTap: () => context
+                                                    onLongPress: () => context
                                                         .pushTransparentRoute(
                                                       ImagePage(
                                                           imagePath:
-                                                              data['image'],
-                                                          tag: data['image'] +
+                                                              (data['image']
+                                                                  as String),
+                                                          tag: (data['image']
+                                                                  as String) +
                                                               random),
                                                       transitionDuration:
                                                           const Duration(
@@ -216,23 +222,25 @@ class _MyHomePageState extends State<MyHomePage> {
                                                     child: AspectRatio(
                                                       aspectRatio: 1,
                                                       child: Hero(
-                                                        tag: data['image'] +
+                                                        tag: (data['image']
+                                                                as String) +
                                                             random,
                                                         child: ClipRRect(
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(10),
-                                                          child: Image.file(
-                                                            File(data['image']),
-                                                            fit: BoxFit.cover,
+                                                          child: ImageNVideo(
+                                                            path: (data['image']
+                                                                as String),
                                                           ),
                                                         ),
                                                       ),
                                                     ),
                                                   ),
-                                                  title: Text(data['jam']),
+                                                  title: Text(
+                                                      data['jam'] as String),
                                                   trailing: Text(
-                                                    '${data['berat'].toStringAsFixed(2)}kg',
+                                                    '${(data['berat'] as double).toStringAsFixed(2)}kg',
                                                     style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.w500),

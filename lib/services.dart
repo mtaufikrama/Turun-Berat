@@ -45,7 +45,7 @@ class TeleBot {
     }
   }
 
-  Future<void> sendMessage(String text) async {
+  void sendMessage(String text) async {
     if (teledart == null) {
       final username = (await Telegram(botToken).getMe()).username;
       teledart = TeleDart(botToken, Event(username!));
@@ -69,7 +69,7 @@ class TeleBot {
     }
   }
 
-  Future<void> sendPhoto(File file, String text) async {
+  void sendPhoto(File file, String text) async {
     if (teledart == null) {
       final username = (await Telegram(botToken).getMe()).username;
       teledart = TeleDart(botToken, Event(username!));
@@ -77,19 +77,25 @@ class TeleBot {
     teledart!.start();
     int userId = Storages().getProfile['userId'] ?? listUserId[1];
     if (listUserId.contains(userId)) {
-      listUserId
-          .map(
-            (e) async => e != userId
-                ? await teledart!.sendPhoto(e, file, caption: text)
-                : null,
-          )
-          .toList();
+      listUserId.map((e) async {
+        if (e != userId) {
+          try {
+            await teledart!.sendVideo(e, file, caption: text);
+          } catch (e) {
+            print(e);
+          }
+        }
+      }).toList();
     } else {
-      listUserId
-          .map((e) async => await teledart!.sendPhoto(e, file, caption: text))
-          .toList();
+      listUserId.map((e) async {
+        try {
+          await teledart!.sendVideo(e, file, caption: text);
+        } catch (e) {
+          print(e);
+        }
+      }).toList();
       try {
-        await teledart!.sendPhoto(userId, file, caption: text);
+        await teledart!.sendVideo(userId, file, caption: text);
       } catch (e) {
         print(e);
       }

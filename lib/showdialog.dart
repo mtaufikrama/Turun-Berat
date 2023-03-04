@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sehat/homepage.dart';
 import 'package:sehat/imagepage.dart';
+import 'package:sehat/imagevideo.dart';
 import 'package:sehat/services.dart';
+import 'package:video_player/video_player.dart';
 
 class ShowDialog extends StatefulWidget {
   const ShowDialog({super.key, required this.profile});
@@ -22,19 +24,28 @@ class _ShowDialogState extends State<ShowDialog> {
   TextEditingController beratController = TextEditingController();
   TextEditingController namaController = TextEditingController();
   TextEditingController userIdController = TextEditingController();
+  VideoPlayerController? _videoPlayerController;
   String? file;
+  String profileNama = Storages().getProfile['nama'] ?? '';
+  int profileUserId = Storages().getProfile['userId'] ?? 0;
+  String profileImage = Storages().getProfile['image'] ?? '';
   int random = Random().nextInt(2846);
   @override
   void initState() {
-    Map getprofile = Storages().getProfile;
-    if (getprofile['nama'] != null && getprofile['userId'] != null) {
-      userIdController.text = getprofile['userId'].toString();
-      namaController.text = getprofile['nama'];
+    if (profileNama.isNotEmpty && profileUserId != 0) {
+      userIdController.text = profileUserId.toString();
+      namaController.text = profileNama;
       if (widget.profile == true) {
-        file = getprofile['image'];
+        file = profileImage;
       }
     }
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _videoPlayerController!.dispose();
+    super.dispose();
   }
 
   @override
@@ -161,7 +172,9 @@ class _ShowDialogState extends State<ShowDialog> {
             height: 15,
           ),
           widget.profile == false
-              ? file != null
+              ? file != null ||
+                      _videoPlayerController != null &&
+                          _videoPlayerController!.value.isInitialized
                   ? SizedBox(
                       width: MediaQuery.of(context).size.width / 3,
                       child: AspectRatio(
@@ -171,20 +184,16 @@ class _ShowDialogState extends State<ShowDialog> {
                           child: Hero(
                             tag: file! + random.toString(),
                             child: GestureDetector(
-                              onTap: () => context.pushTransparentRoute(
-                                ImagePage(
-                                    imagePath: file!,
-                                    tag: file! + random.toString()),
-                                transitionDuration:
-                                    const Duration(milliseconds: 500),
-                                reverseTransitionDuration:
-                                    const Duration(milliseconds: 500),
-                              ),
-                              child: Image.file(
-                                File(file!),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
+                                onTap: () => context.pushTransparentRoute(
+                                      ImagePage(
+                                          imagePath: file!,
+                                          tag: file! + random.toString()),
+                                      transitionDuration:
+                                          const Duration(milliseconds: 500),
+                                      reverseTransitionDuration:
+                                          const Duration(milliseconds: 500),
+                                    ),
+                                child: ImageNVideo(path: file!)),
                           ),
                         ),
                       ),
@@ -202,13 +211,15 @@ class _ShowDialogState extends State<ShowDialog> {
               ? IconButton(
                   onPressed: () async {
                     XFile? image = await ImagePicker()
-                        .pickImage(source: ImageSource.camera);
+                        .pickVideo(source: ImageSource.camera);
                     if (image != null) {
                       file = image.path;
+                      _videoPlayerController =
+                          VideoPlayerController.file(File(file!))
+                            ..initialize().then((value) => setState(() {}));
                     }
-                    setState(() {});
                   },
-                  icon: const Icon(Icons.camera_alt_outlined),
+                  icon: const Icon(Icons.videocam_outlined),
                 )
               : Container(),
         ],
@@ -228,7 +239,6 @@ class _ShowDialogState extends State<ShowDialog> {
             if (widget.profile == false) {
               if (file != null && beratController.text.isNotEmpty) {
                 Map getBox = Storages().getBox;
-                print(getBox);
                 getBox.update(month, (valueMonth) {
                   final Map valueM = valueMonth;
                   valueM.update(
@@ -265,12 +275,9 @@ class _ShowDialogState extends State<ShowDialog> {
                   };
                   return valueMonth;
                 });
-                print('finish : $getBox');
                 await Storages().putBox(getBox[month]);
-                print('finish : $getBox');
-                print(Storages().getBox);
                 try {
-                  await TeleBot().sendPhoto(
+                  TeleBot().sendPhoto(
                       File(file!), '$day $hour\n${beratController.text}kg');
                 } catch (e) {
                   ScaffoldMessenger.of(context)
