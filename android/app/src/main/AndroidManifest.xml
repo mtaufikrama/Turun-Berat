@@ -4,7 +4,7 @@
    <application
         android:label="Gezunt'23"
         android:name="${applicationName}"
-        android:icon="@mipmap/iconapp">
+        android:icon="@mipmap/icons_application">
         <activity
             android:name=".MainActivity"
             android:exported="true"

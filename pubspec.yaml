@@ -57,16 +57,25 @@ dev_dependencies:
   flutter_lints: ^2.0.0
   hive_generator: ^2.0.0
   build_runner: ^2.3.3
-  flutter_launcher_icons: ^0.11.0
-  flutter_app_name: ^0.1.1
-
-flutter_app_name:
-  name: "Gezunt'23"
+  flutter_launcher_icons: ^0.12.0
 
 flutter_icons:
-  android: "iconapp"
+  android: "icons_application"
   ios: true
-  image_path: "assets/iconapp.png"
+  image_path: "assets/gezunt.png"
+  web:
+    generate: true
+    image_path: "assets/gezunt.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "assets/gezunt.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "assets/gezunt.png"
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
